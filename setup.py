@@ -47,5 +47,8 @@ setup(
     scripts=[
     ],
     entry_points={
+        'st2common.rbac.backend': [
+            'noop = st2common.rbac.backends.noop:NoOpRBACBackend'
+        ],
     },
 )
