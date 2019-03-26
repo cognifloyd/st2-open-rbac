@@ -45,6 +45,7 @@ setup(
     include_package_data=True,
     packages=find_packages(exclude=['setuptools', 'tests']),
     scripts=[
+        'bin/st2-apply-rbac-definitions',
     ],
     entry_points={
         'st2common.rbac.backend': [
