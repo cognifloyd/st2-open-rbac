@@ -1,5 +1,9 @@
 **StackStorm** is a platform for integration and automation across services and tools, taking actions in response to events. Learn more at [www.stackstorm.com](http://www.stackstorm.com/product).
 
+# open_rbac for StackStorm
+
+Open Source RBAC
+
 ## Copyright, License, and Contributors Agreement
 
 Copyright 2014-2018 StackStorm, Inc.

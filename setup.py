@@ -22,7 +22,7 @@ from dist_utils import fetch_requirements
 from dist_utils import apply_vagrant_workaround
 from st2api import __version__
 
-ST2_COMPONENT = 'st2api'
+ST2_COMPONENT = 'open_rbac'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REQUIREMENTS_FILE = os.path.join(BASE_DIR, 'requirements.txt')
 
@@ -32,9 +32,9 @@ apply_vagrant_workaround()
 setup(
     name=ST2_COMPONENT,
     version=__version__,
-    description='{} StackStorm event-driven automation platform component'.format(ST2_COMPONENT),
-    author='StackStorm',
-    author_email='info@stackstorm.com',
+    description='Open Source RBAC for StackStorm'
+    author="Jacob Floyd (based on Stackstorm's work)",
+    author_email='cognifloyd@gmail.com',
     license='Apache License (2.0)',
     url='https://stackstorm.com/',
     install_requires=install_reqs,
