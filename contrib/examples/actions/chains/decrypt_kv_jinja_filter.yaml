@@ -1,9 +1,0 @@
----
-vars:
-  encrypted_cmd: "{{ st2kv.system.my_cmd | decrypt_kv }}"
-chain:
-  -
-    name: "c1"
-    ref: "core.local"
-    parameters:
-      cmd: 'echo {{encrypted_cmd}}'
