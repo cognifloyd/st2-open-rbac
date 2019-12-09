@@ -16,7 +16,7 @@
 
 import sys
 
-from st2common.cmd import apply_rbac_definitions
+from open_rbac.cmd import apply_rbac_definitions
 
 if __name__ == '__main__':
     sys.exit(apply_rbac_definitions.main(sys.argv[1:]))
