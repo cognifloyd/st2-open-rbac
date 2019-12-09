@@ -53,8 +53,10 @@ setup(
             #       triggered if cfg.CONF.rbac.enable and cfg.CONF.rbac.backend != 'enterprise'
             #       aargh. It's now raising a ValueError in st2api... Might need a monkeypatch to adjust. :(
             #       or we have to name this "enterprise" even though its not the same thing.
-            'openrbac = open_rbac.backend:OpenRBACBackend'
-            # 'enterprise = open_rbac.backend:OpenRBACBackend'
+            #       Now it must both be the backend setting, and must be in stevedore's list of backends.
+            #       Yeah, this has to be enterprise. :(
+            # 'openrbac = open_rbac.backend:OpenRBACBackend'
+            'enterprise = open_rbac.backend:OpenRBACBackend'
         ],
     },
 )
