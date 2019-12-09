@@ -14,6 +14,12 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+__all__ = [
+    'RuleEnforcementPermissionsResolverTestCase'
+]
+
+import bson
+
 from st2common.triggers import register_internal_trigger_types
 from st2common.rbac.types import PermissionType
 from st2common.rbac.types import ResourceType
@@ -22,26 +28,21 @@ from st2common.persistence.rbac import Role
 from st2common.persistence.rbac import UserRoleAssignment
 from st2common.persistence.rbac import PermissionGrant
 from st2common.persistence.rule import Rule
+from st2common.persistence.rule_enforcement import RuleEnforcement
 from st2common.models.db.auth import UserDB
 from st2common.models.db.rbac import RoleDB
 from st2common.models.db.rbac import UserRoleAssignmentDB
 from st2common.models.db.rbac import PermissionGrantDB
 from st2common.models.db.rule import RuleDB
-from st2common.models.api.rule import RuleAPI
-from st2common.rbac.resolvers import RulePermissionsResolver
+from st2common.models.db.rule_enforcement import RuleEnforcementDB
+from open_rbac.backend import RuleEnforcementPermissionsResolver
 from tests.unit.test_rbac_resolvers import BasePermissionsResolverTestCase
 
-__all__ = [
-    'RulePermissionsResolverTestCase'
-]
 
-
-class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
+class RuleEnforcementPermissionsResolverTestCase(BasePermissionsResolverTestCase):
     def setUp(self):
-        super(RulePermissionsResolverTestCase, self).setUp()
+        super(RuleEnforcementPermissionsResolverTestCase, self).setUp()
 
-        # Register internal triggers - this is needed so we can reference an internal trigger
-        # inside a mock rule
         register_internal_trigger_types()
 
         # Create some mock users
@@ -91,13 +92,37 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         rule_1_db = Rule.add_or_update(rule_1_db)
         self.resources['rule_1'] = rule_1_db
 
+        rule_enforcement_1_db = RuleEnforcementDB(trigger_instance_id=str(bson.ObjectId()),
+                                                  execution_id=str(bson.ObjectId()),
+                                                  rule={'ref': rule_1_db.ref,
+                                                        'uid': rule_1_db.uid,
+                                                        'id': str(rule_1_db.id)})
+        rule_enforcement_1_db = RuleEnforcement.add_or_update(rule_enforcement_1_db)
+        self.resources['rule_enforcement_1'] = rule_enforcement_1_db
+
         rule_2_db = RuleDB(pack='test_pack_1', name='rule2')
         rule_2_db = Rule.add_or_update(rule_2_db)
         self.resources['rule_2'] = rule_2_db
 
+        rule_enforcement_2_db = RuleEnforcementDB(trigger_instance_id=str(bson.ObjectId()),
+                                                  execution_id=str(bson.ObjectId()),
+                                                  rule={'ref': rule_2_db.ref,
+                                                        'uid': rule_2_db.uid,
+                                                        'id': str(rule_2_db.id)})
+        rule_enforcement_2_db = RuleEnforcement.add_or_update(rule_enforcement_2_db)
+        self.resources['rule_enforcement_2'] = rule_enforcement_2_db
+
         rule_3_db = RuleDB(pack='test_pack_2', name='rule3')
         rule_3_db = Rule.add_or_update(rule_3_db)
         self.resources['rule_3'] = rule_3_db
+
+        rule_enforcement_3_db = RuleEnforcementDB(trigger_instance_id=str(bson.ObjectId()),
+                                                  execution_id=str(bson.ObjectId()),
+                                                  rule={'ref': rule_3_db.ref,
+                                                        'uid': rule_3_db.uid,
+                                                        'id': str(rule_3_db.id)})
+        rule_enforcement_3_db = RuleEnforcement.add_or_update(rule_enforcement_3_db)
+        self.resources['rule_enforcement_3'] = rule_enforcement_3_db
 
         # Create some mock roles with associated permission grants
         # Custom role 2 - one grant on parent pack
@@ -206,7 +231,7 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         grant_db = PermissionGrant.add_or_update(grant_db)
         permission_grants = [str(grant_db.id)]
         role_10_db = RoleDB(name='custom_role_rule_list_grant',
-                           permission_grants=permission_grants)
+                            permission_grants=permission_grants)
         role_10_db = Role.add_or_update(role_10_db)
         self.roles['custom_role_rule_list_grant'] = role_10_db
 
@@ -272,11 +297,11 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         UserRoleAssignment.add_or_update(role_assignment_db)
 
     def test_user_has_permission(self):
-        resolver = RulePermissionsResolver()
-        permission_type = PermissionType.RULE_LIST
+        resolver = RuleEnforcementPermissionsResolver()
 
         # Admin user, should always return true
         user_db = self.users['admin']
+        permission_type = PermissionType.RULE_ENFORCEMENT_LIST
         self.assertUserHasPermission(resolver=resolver,
                                      user_db=user_db,
                                      permission_type=permission_type)
@@ -305,104 +330,13 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
                                      user_db=user_db,
                                      permission_type=permission_type)
 
-    def test_user_has_resource_api_permission(self):
-        resolver = RulePermissionsResolver()
-
-        # Admin user, should always return true
-        user_db = self.users['admin']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserHasResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Observer, should return false
-        user_db = self.users['observer']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserDoesntHaveResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # No roles, should return false
-        user_db = self.users['no_roles']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserDoesntHaveResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Custom role with no permission grants, should return false
-        user_db = self.users['1_custom_role_no_permissions']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserDoesntHaveResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Custom role with "rule_create" grant on parent pack
-        user_db = self.users['rule_pack_rule_create_grant']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserHasResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Custom role with "rule_all" grant on the parent pack
-        user_db = self.users['rule_pack_rule_all_grant']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserHasResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Custom role with "rule_create" grant directly on the resource
-        user_db = self.users['rule_rule_create_grant']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserHasResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
-        # Custom role with "rule_all" grant directly on the resource
-        user_db = self.users['rule_rule_all_grant']
-        resource_db = self.resources['rule_1']
-        resource_api = RuleAPI.from_model(resource_db)
-
-        self.assertUserHasResourceApiPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_api=resource_api,
-            permission_type=PermissionType.RULE_CREATE)
-
     def test_user_has_resource_db_permission(self):
-        resolver = RulePermissionsResolver()
+        resolver = RuleEnforcementPermissionsResolver()
         all_permission_types = PermissionType.get_valid_permissions_for_resource_type(
-            ResourceType.RULE)
+            ResourceType.RULE_ENFORCEMENT)
 
         # Admin user, should always return true
-        resource_db = self.resources['rule_1']
+        resource_db = self.resources['rule_enforcement_1']
         user_db = self.users['admin']
         self.assertUserHasResourceDbPermissions(
             resolver=resolver,
@@ -415,24 +349,13 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_1'],
-            permission_type=PermissionType.RULE_VIEW)
+            resource_db=self.resources['rule_enforcement_1'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_2'],
-            permission_type=PermissionType.RULE_VIEW)
-
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_1'],
-            permission_type=PermissionType.RULE_MODIFY)
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_2'],
-            permission_type=PermissionType.RULE_DELETE)
+            resource_db=self.resources['rule_enforcement_2'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
 
         # No roles, should return false for everything
         user_db = self.users['no_roles']
@@ -455,70 +378,38 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_1'],
-            permission_type=PermissionType.RULE_VIEW)
+            resource_db=self.resources['rule_enforcement_1'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
         self.assertUserDoesntHaveResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_2'],
-            permission_type=PermissionType.RULE_VIEW)
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_3'],
-            permission_type=PermissionType.RULE_DELETE)
+            resource_db=self.resources['rule_enforcement_2'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
 
         # Custom role with with grant on the parent pack
         user_db = self.users['custom_role_rule_pack_grant']
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_1'],
-            permission_type=PermissionType.RULE_VIEW)
+            resource_db=self.resources['rule_enforcement_1'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_2'],
-            permission_type=PermissionType.RULE_VIEW)
-
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_1'],
-            permission_type=PermissionType.RULE_DELETE)
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_2'],
-            permission_type=PermissionType.RULE_MODIFY)
+            resource_db=self.resources['rule_enforcement_2'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
 
         # Custom role with a direct grant on rule
         user_db = self.users['custom_role_rule_grant']
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
-            resource_db=self.resources['rule_3'],
-            permission_type=PermissionType.RULE_VIEW)
-
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_3'],
-            permission_type=PermissionType.RULE_ALL)
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_3'],
-            permission_type=PermissionType.RULE_MODIFY)
-        self.assertUserDoesntHaveResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=self.resources['rule_3'],
-            permission_type=PermissionType.RULE_DELETE)
+            resource_db=self.resources['rule_enforcement_3'],
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)
 
         # Custom role - "rule_all" grant on the rule parent pack
         user_db = self.users['custom_role_pack_rule_all_grant']
-        resource_db = self.resources['rule_1']
+        resource_db = self.resources['rule_enforcement_1']
         self.assertUserHasResourceDbPermissions(
             resolver=resolver,
             user_db=user_db,
@@ -527,7 +418,7 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
 
         # Custom role - "rule_all" grant on the rule
         user_db = self.users['custom_role_rule_all_grant']
-        resource_db = self.resources['rule_1']
+        resource_db = self.resources['rule_enforcement_1']
         self.assertUserHasResourceDbPermissions(
             resolver=resolver,
             user_db=user_db,
@@ -536,26 +427,11 @@ class RulePermissionsResolverTestCase(BasePermissionsResolverTestCase):
 
         # Custom role - "rule_modify" grant on rule_1
         user_db = self.users['custom_role_rule_modify_grant']
-        resource_db = self.resources['rule_1']
-        self.assertUserHasResourceDbPermission(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=resource_db,
-            permission_type=PermissionType.RULE_MODIFY)
+        resource_db = self.resources['rule_enforcement_1']
 
         # "modify" also grants "view"
         self.assertUserHasResourceDbPermission(
             resolver=resolver,
             user_db=user_db,
             resource_db=resource_db,
-            permission_type=PermissionType.RULE_VIEW)
-
-        permission_types = [
-            PermissionType.RULE_CREATE,
-            PermissionType.RULE_DELETE
-        ]
-        self.assertUserDoesntHaveResourceDbPermissions(
-            resolver=resolver,
-            user_db=user_db,
-            resource_db=resource_db,
-            permission_types=permission_types)
+            permission_type=PermissionType.RULE_ENFORCEMENT_VIEW)

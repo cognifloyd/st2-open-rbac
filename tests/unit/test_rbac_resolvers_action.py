@@ -28,7 +28,7 @@ from st2common.models.db.rbac import UserRoleAssignmentDB
 from st2common.models.db.rbac import PermissionGrantDB
 from st2common.models.db.action import ActionDB
 from st2common.models.api.action import ActionAPI
-from st2common.rbac.resolvers import ActionPermissionsResolver
+from open_rbac.backend import ActionPermissionsResolver
 from tests.unit.test_rbac_resolvers import BasePermissionsResolverTestCase
 
 __all__ = [

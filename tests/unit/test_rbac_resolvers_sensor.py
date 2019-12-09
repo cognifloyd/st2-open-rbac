@@ -26,7 +26,7 @@ from st2common.models.db.rbac import RoleDB
 from st2common.models.db.rbac import UserRoleAssignmentDB
 from st2common.models.db.rbac import PermissionGrantDB
 from st2common.models.db.sensor import SensorTypeDB
-from st2common.rbac.resolvers import SensorPermissionsResolver
+from open_rbac.backend import SensorPermissionsResolver
 from tests.unit.test_rbac_resolvers import BasePermissionsResolverTestCase
 
 

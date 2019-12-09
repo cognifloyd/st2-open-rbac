@@ -32,7 +32,7 @@ from st2common.models.db.rbac import RoleDB
 from st2common.models.db.rbac import UserRoleAssignmentDB
 from st2common.models.db.rbac import PermissionGrantDB
 from st2common.models.db.pack import PackDB
-from st2common.rbac.resolvers import get_resolver_for_resource_type
+from open_rbac.backend import get_resolver_for_resource_type
 from st2common.rbac.migrations import insert_system_roles
 from st2tests.base import CleanDbTestCase
 
