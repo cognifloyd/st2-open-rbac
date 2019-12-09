@@ -28,7 +28,7 @@ from st2common.models.db.rbac import PermissionGrantDB
 
 from st2tests.fixturesloader import FixturesLoader
 from st2tests import config as tests_config
-from st2tests.api import APIControllerWithRBACTestCase
+from open_rbac.tests import APIControllerWithRBACTestCase
 
 tests_config.parse_args()
 

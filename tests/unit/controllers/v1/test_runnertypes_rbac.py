@@ -16,7 +16,7 @@
 import six
 
 from st2tests.fixturesloader import FixturesLoader
-from st2tests.api import APIControllerWithRBACTestCase
+from open_rbac.tests import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 

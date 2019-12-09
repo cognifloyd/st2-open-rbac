@@ -24,7 +24,7 @@ from st2common.models.db.keyvalue import KeyValuePairDB
 from st2common.persistence.keyvalue import KeyValuePair
 from st2common.models.api.keyvalue import KeyValuePairSetAPI
 from st2common.models.api.keyvalue import KeyValuePairAPI
-from st2tests.api import APIControllerWithRBACTestCase
+from open_rbac.tests import APIControllerWithRBACTestCase
 
 http_client = six.moves.http_client
 

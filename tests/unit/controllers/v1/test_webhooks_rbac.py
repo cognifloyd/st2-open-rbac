@@ -32,7 +32,7 @@ from st2common.models.db.rbac import UserRoleAssignmentDB
 from st2common.models.db.rbac import PermissionGrantDB
 from st2common.models.db.webhook import WebhookDB
 from st2tests.fixturesloader import FixturesLoader
-from st2tests.api import APIControllerWithRBACTestCase
+from open_rbac.tests import APIControllerWithRBACTestCase
 
 from tests.unit.controllers.v1.test_webhooks import DUMMY_TRIGGER_DB
 from tests.unit.controllers.v1.test_webhooks import DUMMY_TRIGGER_API

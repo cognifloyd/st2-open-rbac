@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from st2tests.api import APIControllerWithRBACTestCase
+from open_rbac.tests import APIControllerWithRBACTestCase
 
 __all__ = [
     'UserControllerTestCase'
