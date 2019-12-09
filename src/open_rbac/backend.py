@@ -1164,7 +1164,7 @@ class InquiryPermissionsResolver(PermissionsResolver):
 
 
 class OpenRBACBackend(BaseRBACPermissionResolver):
-    def get_resolver_for_resource_type(resource_type):
+    def get_resolver_for_resource_type(self, resource_type):
         """
         Return resolver instance for the provided resource type.
 
@@ -1213,7 +1213,7 @@ class OpenRBACBackend(BaseRBACPermissionResolver):
         return resolver_instance
 
 
-    def get_resolver_for_permission_type(permission_type):
+    def get_resolver_for_permission_type(self, permission_type):
         """
         Return resolver instance for the provided permission type.
 
