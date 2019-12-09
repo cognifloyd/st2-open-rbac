@@ -49,7 +49,9 @@ setup(
     ],
     entry_points={
         'st2common.rbac.backend': [
-            'noop = st2common.rbac.backends.noop:NoOpRBACBackend'
+            # TODO: we might need to do something to silence the non-enterpirse warning
+            #       triggered if cfg.CONF.rbac.enable and cfg.CONF.rbac.backend != 'enterprise'
+            'openrbac = open_rbac.backend:OpenRBACBackend'
         ],
     },
 )
