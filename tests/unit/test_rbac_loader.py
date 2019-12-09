@@ -22,7 +22,7 @@ import jsonschema
 
 from st2tests import config
 from st2tests.fixturesloader import get_fixtures_base_path
-from st2common.rbac.loader import RBACDefinitionsLoader
+from open_rbac.loader import RBACDefinitionsLoader
 
 __all__ = [
     'RBACDefinitionsLoaderTestCase'
