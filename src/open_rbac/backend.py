@@ -28,6 +28,8 @@ from st2common.models.db.webhook import WebhookDB
 from st2common.models.system.common import ResourceReference
 from st2common.constants.triggers import WEBHOOK_TRIGGER_TYPE
 from st2common.persistence.execution import ActionExecution
+from st2common.rbac.backends.base import BaseRBACBackend
+from st2common.rbac.backends.base import BaseRBACPermissionResolver
 from st2common.rbac.types import PermissionType
 from st2common.rbac.types import ResourceType
 from st2common.rbac.types import SystemRole
@@ -53,8 +55,7 @@ __all__ = [
     'StreamPermissionsResolver',
     'InquiryPermissionsResolver',
 
-    'get_resolver_for_resource_type',
-    'get_resolver_for_permission_type'
+    'OpenRBACBackend',
 ]
 
 # "Read" permission names which are granted to observer role by default
@@ -65,7 +66,7 @@ READ_PERMISSION_NAMES = [
 ]
 
 
-class PermissionsResolver(object):
+class PermissionsResolver(BaseRBACResolver):
     """
     Base Permissions Resolver class.
 
@@ -1160,61 +1161,62 @@ class InquiryPermissionsResolver(PermissionsResolver):
         return False
 
 
-def get_resolver_for_resource_type(resource_type):
-    """
-    Return resolver instance for the provided resource type.
+class OpenRBACBackend(BaseRBACPermissionResolver):
+    def get_resolver_for_resource_type(resource_type):
+        """
+        Return resolver instance for the provided resource type.
 
-    :rtype: Instance of :class:`PermissionsResolver`
-    """
-    if resource_type == ResourceType.RUNNER:
-        resolver_cls = RunnerPermissionsResolver
-    elif resource_type == ResourceType.PACK:
-        resolver_cls = PackPermissionsResolver
-    elif resource_type == ResourceType.SENSOR:
-        resolver_cls = SensorPermissionsResolver
-    elif resource_type == ResourceType.ACTION:
-        resolver_cls = ActionPermissionsResolver
-    elif resource_type == ResourceType.ACTION_ALIAS:
-        resolver_cls = ActionAliasPermissionsResolver
-    elif resource_type == ResourceType.RULE:
-        resolver_cls = RulePermissionsResolver
-    elif resource_type == ResourceType.EXECUTION:
-        resolver_cls = ExecutionPermissionsResolver
-    elif resource_type == ResourceType.KEY_VALUE_PAIR:
-        resolver_cls = KeyValuePermissionsResolver
-    elif resource_type == ResourceType.WEBHOOK:
-        resolver_cls = WebhookPermissionsResolver
-    elif resource_type == ResourceType.TIMER:
-        resolver_cls = TimerPermissionsResolver
-    elif resource_type == ResourceType.API_KEY:
-        resolver_cls = ApiKeyPermissionResolver
-    elif resource_type == ResourceType.RULE_ENFORCEMENT:
-        resolver_cls = RuleEnforcementPermissionsResolver
-    elif resource_type == ResourceType.TRACE:
-        resolver_cls = TracePermissionsResolver
-    elif resource_type == ResourceType.TRIGGER:
-        resolver_cls = TriggerPermissionsResolver
-    elif resource_type == ResourceType.POLICY_TYPE:
-        resolver_cls = PolicyTypePermissionsResolver
-    elif resource_type == ResourceType.POLICY:
-        resolver_cls = PolicyPermissionsResolver
-    elif resource_type == ResourceType.STREAM:
-        resolver_cls = StreamPermissionsResolver
-    elif resource_type == ResourceType.INQUIRY:
-        resolver_cls = InquiryPermissionsResolver
-    else:
-        raise ValueError('Unsupported resource: %s' % (resource_type))
+        :rtype: Instance of :class:`PermissionsResolver`
+        """
+        if resource_type == ResourceType.RUNNER:
+            resolver_cls = RunnerPermissionsResolver
+        elif resource_type == ResourceType.PACK:
+            resolver_cls = PackPermissionsResolver
+        elif resource_type == ResourceType.SENSOR:
+            resolver_cls = SensorPermissionsResolver
+        elif resource_type == ResourceType.ACTION:
+            resolver_cls = ActionPermissionsResolver
+        elif resource_type == ResourceType.ACTION_ALIAS:
+            resolver_cls = ActionAliasPermissionsResolver
+        elif resource_type == ResourceType.RULE:
+            resolver_cls = RulePermissionsResolver
+        elif resource_type == ResourceType.EXECUTION:
+            resolver_cls = ExecutionPermissionsResolver
+        elif resource_type == ResourceType.KEY_VALUE_PAIR:
+            resolver_cls = KeyValuePermissionsResolver
+        elif resource_type == ResourceType.WEBHOOK:
+            resolver_cls = WebhookPermissionsResolver
+        elif resource_type == ResourceType.TIMER:
+            resolver_cls = TimerPermissionsResolver
+        elif resource_type == ResourceType.API_KEY:
+            resolver_cls = ApiKeyPermissionResolver
+        elif resource_type == ResourceType.RULE_ENFORCEMENT:
+            resolver_cls = RuleEnforcementPermissionsResolver
+        elif resource_type == ResourceType.TRACE:
+            resolver_cls = TracePermissionsResolver
+        elif resource_type == ResourceType.TRIGGER:
+            resolver_cls = TriggerPermissionsResolver
+        elif resource_type == ResourceType.POLICY_TYPE:
+            resolver_cls = PolicyTypePermissionsResolver
+        elif resource_type == ResourceType.POLICY:
+            resolver_cls = PolicyPermissionsResolver
+        elif resource_type == ResourceType.STREAM:
+            resolver_cls = StreamPermissionsResolver
+        elif resource_type == ResourceType.INQUIRY:
+            resolver_cls = InquiryPermissionsResolver
+        else:
+            raise ValueError('Unsupported resource: %s' % (resource_type))
 
-    resolver_instance = resolver_cls()
-    return resolver_instance
+        resolver_instance = resolver_cls()
+        return resolver_instance
 
 
-def get_resolver_for_permission_type(permission_type):
-    """
-    Return resolver instance for the provided permission type.
+    def get_resolver_for_permission_type(permission_type):
+        """
+        Return resolver instance for the provided permission type.
 
-    :rtype: Instance of :class:`PermissionsResolver`
-    """
-    resource_type = PermissionType.get_resource_type(permission_type=permission_type)
-    resolver_instance = get_resolver_for_resource_type(resource_type=resource_type)
-    return resolver_instance
+        :rtype: Instance of :class:`PermissionsResolver`
+        """
+        resource_type = PermissionType.get_resource_type(permission_type=permission_type)
+        resolver_instance = get_resolver_for_resource_type(resource_type=resource_type)
+        return resolver_instance
