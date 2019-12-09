@@ -37,6 +37,8 @@ from st2common.rbac.types import GLOBAL_PACK_PERMISSION_TYPES
 from st2common.services.rbac import get_roles_for_user
 from st2common.services.rbac import get_all_permission_grants_for_user
 
+from .syncer import RBACRemoteGroupToRoleSyncer
+
 LOG = logging.getLogger(__name__)
 
 __all__ = [
@@ -1220,3 +1222,7 @@ class OpenRBACBackend(BaseRBACPermissionResolver):
         resource_type = PermissionType.get_resource_type(permission_type=permission_type)
         resolver_instance = get_resolver_for_resource_type(resource_type=resource_type)
         return resolver_instance
+
+    def get_remote_group_to_role_syncer(self):
+        syncer = RBACRemoteGroupToRoleSyncer()
+        return syncer
