@@ -51,7 +51,10 @@ setup(
         'st2common.rbac.backend': [
             # TODO: we might need to do something to silence the non-enterpirse warning
             #       triggered if cfg.CONF.rbac.enable and cfg.CONF.rbac.backend != 'enterprise'
+            #       aargh. It's now raising a ValueError in st2api... Might need a monkeypatch to adjust. :(
+            #       or we have to name this "enterprise" even though its not the same thing.
             'openrbac = open_rbac.backend:OpenRBACBackend'
+            # 'enterprise = open_rbac.backend:OpenRBACBackend'
         ],
     },
 )
