@@ -32,16 +32,16 @@ from st2common.rbac.types import PermissionType
 from st2common.rbac.types import ResourceType
 from st2common.rbac.types import SystemRole
 from st2common.rbac.backends import get_backend_instance
-from st2common.rbac.backends.base import BaseRBACUtilsClass
+from st2common.rbac.backends.base import BaseRBACUtils
 from st2common.services import rbac as rbac_services
 from st2common.util import action_db as action_utils
 
 __all__ = [
-    'RBACUtilsClass',
+    'RBACUtils',
 ]
 
 
-class RBACUtilsClass(BaseRBACUtilsClass):
+class RBACUtils(BaseRBACUtils):
     @staticmethod
     def assert_user_is_admin(user_db):
         """

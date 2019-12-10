@@ -38,7 +38,7 @@ from st2common.services.rbac import get_roles_for_user
 from st2common.services.rbac import get_all_permission_grants_for_user
 
 from .syncer import RBACRemoteGroupToRoleSyncer
-from .utils import RBACUtilsClass
+from .utils import RBACUtils
 
 LOG = logging.getLogger(__name__)
 
@@ -1229,4 +1229,4 @@ class OpenRBACBackend(BaseRBACPermissionResolver):
         return syncer
 
     def get_utils_class(self):
-        return RBACUtilsClass
+        return RBACUtils
