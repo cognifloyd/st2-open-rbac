@@ -42,9 +42,9 @@ from st2common.persistence.rbac import UserRoleAssignment
 from st2common.persistence.rbac import PermissionGrant
 from st2common.persistence.rbac import GroupToRoleMapping
 from st2common.rbac.backends.base import BaseRBACRemoteGroupToRoleSyncer
-from st2common.services import rbac as rbac_services
 from st2common.util.uid import parse_uid
 
+from . import services as rbac_services
 
 LOG = logging.getLogger(__name__)
 

@@ -18,6 +18,7 @@ from __future__ import absolute_import
 from mongoengine.queryset.visitor import Q
 from mongoengine import NotUniqueError
 
+from st2common.rbac.backends.base import BaseRBACService
 from st2common.rbac.types import PermissionType
 from st2common.rbac.types import ResourceType
 from st2common.rbac.types import SystemRole
@@ -54,7 +55,9 @@ __all__ = [
     'get_all_group_to_role_maps',
     'create_group_to_role_map',
 
-    'validate_roles_exists'
+    'validate_roles_exists',
+
+    'RBACService',
 ]
 
 
@@ -404,3 +407,8 @@ def _validate_permission_types(resource_db, permission_types):
             raise ValueError('Invalid permission type: %s' % (permission_type))
 
     return permission_types
+
+
+class RBACService(BaseRBACService):
+    get_roles_for_user = get_roles_for_user
+    validate_roles_exists = validate_roles_exists

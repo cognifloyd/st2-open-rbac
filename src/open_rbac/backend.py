@@ -34,9 +34,10 @@ from st2common.rbac.types import PermissionType
 from st2common.rbac.types import ResourceType
 from st2common.rbac.types import SystemRole
 from st2common.rbac.types import GLOBAL_PACK_PERMISSION_TYPES
-from st2common.services.rbac import get_roles_for_user
-from st2common.services.rbac import get_all_permission_grants_for_user
 
+from .services import get_roles_for_user
+from .services import get_all_permission_grants_for_user
+from .services import RBACService
 from .syncer import RBACRemoteGroupToRoleSyncer
 from .utils import RBACUtils
 
@@ -1227,6 +1228,9 @@ class OpenRBACBackend(BaseRBACPermissionResolver):
     def get_remote_group_to_role_syncer(self):
         syncer = RBACRemoteGroupToRoleSyncer()
         return syncer
+
+    def get_service_class(self):
+        return RBACService
 
     def get_utils_class(self):
         return RBACUtils
