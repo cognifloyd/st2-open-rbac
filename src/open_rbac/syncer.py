@@ -369,6 +369,7 @@ class RBACDefinitionsDBSyncer(object):
 
 class RBACRemoteGroupToRoleSyncer(BaseRBACRemoteGroupToRoleSyncer):
     """
+    Class reponsible for syncing remote LDAP groups to local RBAC roles.
     Class which writes remote user role assignments based on the user group membership information
     provided by the auth backend and based on the group to role mapping definitions on disk.
     """
