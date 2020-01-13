@@ -32,7 +32,7 @@ apply_vagrant_workaround()
 setup(
     name=ST2_COMPONENT,
     version=get_version_string(INIT_FILE),
-    description='Open Source RBAC for StackStorm'
+    description='Open Source RBAC for StackStorm',
     author="Jacob Floyd (based on Stackstorm's work)",
     author_email='cognifloyd@gmail.com',
     license='Apache License (2.0)',
