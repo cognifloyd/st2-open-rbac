@@ -42,7 +42,8 @@ setup(
     test_suite=ST2_COMPONENT,
     zip_safe=False,
     include_package_data=True,
-    packages=find_packages(exclude=['setuptools', 'tests']),
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     scripts=[
         'bin/st2-apply-rbac-definitions',
     ],
