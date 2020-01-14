@@ -42,34 +42,34 @@ __all__ = [
 
 
 class RBACUtils(BaseRBACUtils):
-    @staticmethod
-    def assert_user_is_admin(user_db):
+    @classmethod
+    def assert_user_is_admin(cls, user_db):
         """
         Assert that the currently logged in user is an administrator.
 
         If the user is not an administrator, an exception is thrown.
         """
-        is_admin = user_is_admin(user_db=user_db)
+        is_admin = cls.user_is_admin(user_db=user_db)
 
         if not is_admin:
             raise AccessDeniedError(message='Administrator access required',
                                     user_db=user_db)
 
-    @staticmethod
-    def assert_user_is_system_admin(user_db):
+    @classmethod
+    def assert_user_is_system_admin(cls, user_db):
         """
         Assert that the currently logged in user is a system administrator.
 
         If the user is not a system administrator, an exception is thrown.
         """
-        is_system_admin = user_is_system_admin(user_db=user_db)
+        is_system_admin = cls.user_is_system_admin(user_db=user_db)
 
         if not is_system_admin:
             raise AccessDeniedError(message='System Administrator access required',
                                     user_db=user_db)
 
-    @staticmethod
-    def assert_user_is_admin_or_operating_on_own_resource(user_db, user=None):
+    @classmethod
+    def assert_user_is_admin_or_operating_on_own_resource(cls, user_db, user=None):
         """
         Assert that the currently logged in user is an administrator or operating on a resource which
         belongs to that user.
@@ -77,32 +77,32 @@ class RBACUtils(BaseRBACUtils):
         if not cfg.CONF.rbac.enable:
             return True
 
-        is_admin = user_is_admin(user_db=user_db)
+        is_admin = cls.user_is_admin(user_db=user_db)
         is_self = user is not None and (user_db.name == user)
 
         if not is_admin and not is_self:
             raise AccessDeniedError(message='Administrator or self access required',
                                     user_db=user_db)
 
-    @staticmethod
-    def assert_user_has_permission(user_db, permission_type):
+    @classmethod
+    def assert_user_has_permission(cls, user_db, permission_type):
         """
         Check that currently logged-in user has specified permission.
 
         If user doesn't have a required permission, AccessDeniedError s thrown.
         """
-        has_permission = user_has_permission(user_db=user_db, permission_type=permission_type)
+        has_permission = cls.user_has_permission(user_db=user_db, permission_type=permission_type)
 
         if not has_permission:
             raise ResourceTypeAccessDeniedError(user_db=user_db, permission_type=permission_type)
 
-    @staticmethod
-    def assert_user_has_resource_api_permission(user_db, resource_api, permission_type):
+    @classmethod
+    def assert_user_has_resource_api_permission(cls, user_db, resource_api, permission_type):
         """
         Check that currently logged-in user has specified permission for the resource which is to be
         created.
         """
-        has_permission = user_has_resource_api_permission(user_db=user_db,
+        has_permission = cls.user_has_resource_api_permission(user_db=user_db,
                                                           resource_api=resource_api,
                                                           permission_type=permission_type)
 
@@ -111,14 +111,14 @@ class RBACUtils(BaseRBACUtils):
             raise ResourceAccessDeniedError(user_db=user_db, resource_api_or_db=resource_api,
                                             permission_type=permission_type)
 
-    @staticmethod
-    def assert_user_has_resource_db_permission(user_db, resource_db, permission_type):
+    @classmethod
+    def assert_user_has_resource_db_permission(cls, user_db, resource_db, permission_type):
         """
         Check that currently logged-in user has specified permission on the provied resource.
 
         If user doesn't have a required permission, AccessDeniedError is thrown.
         """
-        has_permission = user_has_resource_db_permission(user_db=user_db,
+        has_permission = cls.user_has_resource_db_permission(user_db=user_db,
                                                          resource_db=resource_db,
                                                          permission_type=permission_type)
 
@@ -176,8 +176,8 @@ class RBACUtils(BaseRBACUtils):
 
         return False
 
-    @staticmethod
-    def assert_user_has_rule_trigger_and_action_permission(user_db, rule_api):
+    @classmethod
+    def assert_user_has_rule_trigger_and_action_permission(cls, user_db, rule_api):
         """
         Check that the currently logged-in has necessary permissions on trhe trigger and action
         used / referenced inside the rule.
@@ -193,7 +193,7 @@ class RBACUtils(BaseRBACUtils):
 
         # Check that user has access to the specified trigger - right now we only check for
         # webhook permissions
-        has_trigger_permission = user_has_rule_trigger_permission(user_db=user_db,
+        has_trigger_permission = cls.user_has_rule_trigger_permission(user_db=user_db,
                                                                   trigger=trigger)
 
         if not has_trigger_permission:
@@ -202,7 +202,7 @@ class RBACUtils(BaseRBACUtils):
             raise AccessDeniedError(message=msg, user_db=user_db)
 
         # Check that user has access to the specified action
-        has_action_permission = user_has_rule_action_permission(user_db=user_db,
+        has_action_permission = cls.user_has_rule_action_permission(user_db=user_db,
                                                                 action_ref=action_ref)
 
         if not has_action_permission:
@@ -212,13 +212,13 @@ class RBACUtils(BaseRBACUtils):
 
         return True
 
-    @staticmethod
-    def assert_user_is_admin_if_user_query_param_is_provided(user_db, user, require_rbac=False):
+    @classmethod
+    def assert_user_is_admin_if_user_query_param_is_provided(cls, user_db, user, require_rbac=False):
         """
         Function which asserts that the request user is administator if "user" query parameter is
         provided and doesn't match the current user.
         """
-        is_admin = user_is_admin(user_db=user_db)
+        is_admin = cls.user_is_admin(user_db=user_db)
         is_rbac_enabled = bool(cfg.CONF.rbac.enable)
 
         if user != user_db.name:
@@ -230,8 +230,8 @@ class RBACUtils(BaseRBACUtils):
                 msg = '"user" attribute can only be provided by admins'
                 raise AccessDeniedError(message=msg, user_db=user_db)
 
-    @staticmethod
-    def user_is_admin(user_db):
+    @classmethod
+    def user_is_admin(cls, user_db):
         """
         Return True if the provided user has admin role (either system admin or admin), false
         otherwise.
@@ -241,18 +241,18 @@ class RBACUtils(BaseRBACUtils):
 
         :rtype: ``bool``
         """
-        is_system_admin = user_is_system_admin(user_db=user_db)
+        is_system_admin = cls.user_is_system_admin(user_db=user_db)
         if is_system_admin:
             return True
 
-        is_admin = user_has_role(user_db=user_db, role=SystemRole.ADMIN)
+        is_admin = cls.user_has_role(user_db=user_db, role=SystemRole.ADMIN)
         if is_admin:
             return True
 
         return False
 
-    @staticmethod
-    def user_is_system_admin(user_db):
+    @classmethod
+    def user_is_system_admin(cls, user_db):
         """
         Return True if the provided user has system admin rule, false otherwise.
 
@@ -261,7 +261,7 @@ class RBACUtils(BaseRBACUtils):
 
         :rtype: ``bool``
         """
-        return user_has_role(user_db=user_db, role=SystemRole.SYSTEM_ADMIN)
+        return cls.user_has_role(user_db=user_db, role=SystemRole.SYSTEM_ADMIN)
 
     @staticmethod
     def user_has_role(user_db, role):
@@ -274,6 +274,7 @@ class RBACUtils(BaseRBACUtils):
 
         :rtype: ``bool``
         """
+        # TODO: What!? a raw assert in security code?
         assert isinstance(role, six.string_types)
 
         if not cfg.CONF.rbac.enable:
