@@ -27,6 +27,7 @@ from st2common.models.db.webhook import WebhookDB
 from st2common.models.system.common import ResourceReference
 from st2common.constants.triggers import WEBHOOK_TRIGGER_TYPE
 from st2common.persistence.execution import ActionExecution
+from st2common.rbac.backends import get_rbac_backend
 from st2common.rbac.backends.base import BaseRBACBackend
 from st2common.rbac.backends.base import BaseRBACPermissionResolver
 from st2common.rbac.types import PermissionType
@@ -506,7 +507,8 @@ class RulePermissionsResolver(ContentPackResourcePermissionsResolver):
                       extra=log_context)
             return True
 
-        resolver = get_resolver_for_resource_type(ResourceType.WEBHOOK)
+        backend = get_rbac_backend()
+        resolver = backend.get_resolver_for_resource_type(ResourceType.WEBHOOK)
         webhook_db = WebhookDB(name=trigger_parameters['url'])
         permission_type = PermissionType.WEBHOOK_CREATE
         result = resolver.user_has_resource_db_permission(user_db=user_db,
@@ -1221,7 +1223,7 @@ class OpenRBACBackend(BaseRBACBackend):
         :rtype: Instance of :class:`PermissionsResolver`
         """
         resource_type = PermissionType.get_resource_type(permission_type=permission_type)
-        resolver_instance = get_resolver_for_resource_type(resource_type=resource_type)
+        resolver_instance = self.get_resolver_for_resource_type(resource_type=resource_type)
         return resolver_instance
 
     def get_remote_group_to_role_syncer(self):
