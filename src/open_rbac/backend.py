@@ -69,7 +69,7 @@ READ_PERMISSION_NAMES = [
 ]
 
 
-class PermissionsResolver(BaseRBACResolver):
+class PermissionsResolver(BaseRBACPermissionResolver):
     """
     Base Permissions Resolver class.
 
@@ -1164,7 +1164,7 @@ class InquiryPermissionsResolver(PermissionsResolver):
         return False
 
 
-class OpenRBACBackend(BaseRBACPermissionResolver):
+class OpenRBACBackend(BaseRBACBackend):
     def get_resolver_for_resource_type(self, resource_type):
         """
         Return resolver instance for the provided resource type.
