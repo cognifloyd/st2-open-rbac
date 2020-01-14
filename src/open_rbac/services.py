@@ -409,5 +409,5 @@ def _validate_permission_types(resource_db, permission_types):
 
 
 class RBACService(BaseRBACService):
-    get_roles_for_user = get_roles_for_user
-    validate_roles_exists = validate_roles_exists
+    get_roles_for_user = staticmethod(get_roles_for_user)
+    validate_roles_exists = staticmethod(validate_roles_exists)
