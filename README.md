@@ -4,6 +4,18 @@
 
 Open Source RBAC
 
+To use, install in the /opt/stackstorm/st2 virtualenv.
+No warranties or guarantees (as indicated in the Apache License). This is AS-IS and quality/fitness for any purpose is unknown.
+
+## TODO
+
+- [ ] Get the tests to run.
+
+ST2 uses nosetest to run them but I'm more familiar with pytest.
+Also, running tests with 3.1.0 is broken because some intermediate deps changed. One of the incompatibilities was fixed in master by upgrading cryptography to 2.8, but the other has not been fixed.
+PRs welcome to get a good way to test this.
+
+
 ## Copyright, License, and Contributors Agreement
 
 Copyright 2014-2018 StackStorm, Inc.
